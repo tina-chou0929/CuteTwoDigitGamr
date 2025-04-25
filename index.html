@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>可愛加減小遊戲</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      text-align: center;
+      padding: 30px;
+      margin: 0;
+      background: linear-gradient(to bottom, #ffe8ec, #d1f3ff);
+      color: #333;
+    }
+    h1 {
+      font-size: 2.5em;
+      color: #ff69b4;
+      margin-bottom: 10px;
+    }
+    .game-box {
+      background-color: #fff0f5;
+      border: 4px dotted #ffb6c1;
+      border-radius: 20px;
+      padding: 20px;
+      display: inline-block;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      position: relative;
+      max-width: 400px;
+      width: 100%;
+    }
+    .character {
+      width: 100px;
+      height: auto;
+    }
+    select, input[type="text"], input[type="number"] {
+      font-size: 1.2em;
+      padding: 8px;
+      margin: 5px;
+      border-radius: 10px;
+      border: 2px solid #ffa07a;
+    }
+    button {
+      font-size: 1.2em;
+      padding: 10px 20px;
+      margin-top: 10px;
+      background-color: #ffb6c1;
+      border: none;
+      border-radius: 15px;
+      color: #fff;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #ff69b4;
+    }
+    .result, .score {
+      font-size: 1.2em;
+      margin-top: 10px;
+      color: #ff4500;
+    }
+    .leaderboard {
+      margin-top: 20px;
+      background-color: #f0ffff;
+      border: 2px dashed #87cefa;
+      border-radius: 15px;
+      padding: 10px;
+      width: 90%;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .leaderboard h2 {
+      font-size: 1.2em;
+      color: #4169e1;
+    }
+    .leaderboard ul {
+      list-style: none;
+      padding: 0;
+      font-size: 1em;
+    }
+    .emoji {
+      font-size: 2em;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>可愛加減小遊戲</h1>
+
+  <div class="game-box">
+    <img id="characterImg" src="https://cdn.pixabay.com/photo/2021/01/08/13/48/cat-5899268_960_720.png" class="character" alt="角色">
+    <br>
+    <input type="text" id="playerName" placeholder="請輸入你的名字">
+    <br>
+    <select id="characterSelect" onchange="changeCharacter()">
+      <option value="cat">貓貓</option>
+      <option value="bunny">兔兔</option>
+      <option value="bear">熊熊</option>
+    </select>
+    <div class="question" id="question"></div>
+    <input type="number" id="answer" placeholder="輸入答案">
+    <br>
+    <button onclick="checkAnswer()">提交答案</button>
+    <div class="result" id="result"></div>
+    <div class="emoji" id="emoji"></div>
+    <div class="score">目前得分：<span id="score">0</span></div>
+  </div>
+
+  <div class="leaderboard">
+    <h2>排行榜</h2>
+    <ul id="leaderboard"></ul>
+  </div>
+
+  <script>
+    const characterImages = {
+      cat: "https://cdn.pixabay.com/photo/2021/01/08/13/48/cat-5899268_960_720.png",
+      bunny: "https://cdn.pixabay.com/photo/2014/04/02/10/56/rabbit-306914_960_720.png",
+      bear: "https://cdn.pixabay.com/photo/2023/03/30/13/13/bear-7888192_960_720.png"
+    };
+
+    let num1, num2, operator, correctAnswer;
+    let score = 0;
+    let leaderboard = [];
+
+    function generateQuestion() {
+      num1 = Math.floor(Math.random() * 90) + 10;
+      num2 = Math.floor(Math.random() * 90) + 10;
+      operator = Math.random() < 0.5 ? '+' : '-';
+      correctAnswer = operator === '+' ? num1 + num2 : num1 - num2;
+      document.getElementById('question').innerText = `${num1} ${operator} ${num2} = ?`;
+      document.getElementById('answer').value = '';
+      document.getElementById('result').innerText = '';
+      document.getElementById('emoji').innerText = '';
+    }
+
+    function changeCharacter() {
+      const selected = document.getElementById('characterSelect').value;
+      document.getElementById('characterImg').src = characterImages[selected];
+    }
+
+    function checkAnswer() {
+      const userAnswer = parseInt(document.getElementById('answer').value);
+      const playerName = document.getElementById('playerName').value || '玩家';
+      const emoji = document.getElementById('emoji');
+      if (userAnswer === correctAnswer) {
+        document.getElementById('result').innerText = '太棒了！答對了！';
+        emoji.innerText = 'ฅ^•ﻌ•^ฅ';
+        score++;
+      } else {
+        document.getElementById('result').innerText = `喔不～ 答錯了！正確答案是 ${correctAnswer}`;
+        emoji.innerText = '(；・∀・)';
+        updateLeaderboard(playerName);
+        score = 0;
+      }
+      document.getElementById('score').innerText = score;
+      setTimeout(generateQuestion, 1500);
+    }
+
+    function updateLeaderboard(name) {
+      const timestamp = new Date().toLocaleTimeString();
+      leaderboard.unshift(`${name} - 分數：${score}（${timestamp}）`);
+      leaderboard = leaderboard.slice(0, 5);
+      const list = document.getElementById('leaderboard');
+      list.innerHTML = '';
+      leaderboard.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        list.appendChild(li);
+      });
+    }
+
+    window.onload = generateQuestion;
+  </script>
+</body>
+</html>
